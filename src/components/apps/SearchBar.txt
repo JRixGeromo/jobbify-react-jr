@@ -1,0 +1,52 @@
+import React from 'react';
+import { Search } from 'lucide-react';
+
+interface SearchBarProps {
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  selectedCategory: string | null;
+  onCategoryChange: (category: string | null) => void;
+  categories: string[];
+}
+
+export function SearchBar({ 
+  searchQuery, 
+  onSearchChange, 
+  selectedCategory, 
+  onCategoryChange, 
+  categories 
+}: SearchBarProps) {
+  return (
+    <div className="mb-8">
+      <div className="bg-white rounded-lg shadow-sm border border-purple-100 p-6">
+        <div className="flex gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search apps..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 pl-9 pr-4 py-2 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+            />
+          </div>
+          <div className="flex gap-2">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => onCategoryChange(selectedCategory === category ? null : category)}
+                className={`px-4 py-2 rounded-lg ${
+                  selectedCategory === category
+                    ? 'bg-purple-100 text-purple-800'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

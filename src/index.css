@@ -1,0 +1,150 @@
+@tailwind base;
+
+/* Define custom theme variables for light and dark modes */
+
+:root {
+  --background-light: #f8fafc; /* Light mode page background */
+  --background-dark: #1a202c; /* Dark mode page background */
+  --sidebar-bg-color: #ffffff; /* Light mode sidebar background */
+  --sidebar-text-color: #1a202c; /* Light mode text */
+  --sidebar-hover-bg-color: #f3f4f6; /* Light mode hover background */
+  --active-menu-item-bg-color: #ede9fe; /* Light mode active background */
+  --active-menu-item-color: #4c1d95; /* Light mode active text */
+  --breadcrumb-text-color: #1a202c; /* Light mode breadcrumb text */
+}
+
+:root.dark {
+  --background-light: #1a202c; /* Dark mode page background */
+  --background-dark: #1a202c; /* Dark mode page background */
+  --sidebar-bg-color: #1a202c; /* Dark mode sidebar background */
+  --sidebar-text-color: #e2e8f0; /* Dark mode text */
+  --sidebar-hover-bg-color: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Dark mode hover background */
+  --active-menu-item-bg-color: rgba(
+    147,
+    51,
+    234,
+    0.3
+  ); /* Dark mode active background */
+  --active-menu-item-color: #a78bfa; /* Dark mode active text */
+  --breadcrumb-text-color: #e2e8f0; /* Dark mode breadcrumb text */
+}
+
+/* Global page styling */
+body {
+  /* background-color: var(--background-light); */
+  color: var(--sidebar-text-color);
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+:root.dark body {
+  background-color: var(--background-dark);
+  color: var(--sidebar-text-color);
+}
+
+/* Sidebar styling */
+.sidebar {
+  background-color: var(--sidebar-bg-color);
+  color: var(--sidebar-text-color);
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: var(--sidebar-text-color);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.sidebar nav a:hover {
+  background-color: var(--sidebar-hover-bg-color);
+  color: var(--sidebar-text-color);
+}
+
+.sidebar nav a.active {
+  background-color: var(--active-menu-item-bg-color);
+  color: var(--active-menu-item-color);
+  font-weight: bold;
+  border-left: 4px solid var(--active-menu-item-color); /* Optional: add a visual border indicator */
+}
+
+/* Footer styling */
+footer {
+  background-color: var(--sidebar-bg-color);
+  color: var(--sidebar-text-color);
+  padding: 1rem;
+  text-align: center;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+/* Button styling */
+button {
+  background-color: var(--sidebar-hover-bg-color);
+  color: var(--sidebar-text-color);
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+button:hover {
+  background-color: var(--active-menu-item-bg-color);
+  color: var(--active-menu-item-color);
+}
+
+/* Apply to breadcrumb container */
+.breadcrumb {
+  color: var(--breadcrumb-text-color);
+}
+
+/* Prevent gradient background in elements */
+.bg-gradient-to-br {
+  background-image: none !important; /* Disables gradient */
+}
+
+/* Apply gradient override if needed */
+.bg-gradient-to-br-custom {
+  background-image: linear-gradient(
+    to bottom right,
+    #6a1b9a,
+    #9c27b0
+  ); /* Example custom gradient */
+}
+
+/* Dark Mode */
+html.dark .ProseMirror-menubar button {
+  color: #ffffff; /* White for dark mode */
+}
+
+html.dark .ProseMirror-menubar button:hover {
+  background-color: #374151; /* Darker hover color for dark mode */
+}
+
+/* Light Mode */
+html:not(.dark) .ProseMirror-menubar button {
+  color: #374151; /* Gray for light mode */
+}
+
+html:not(.dark) .ProseMirror-menubar button:hover {
+  background-color: #e5e7eb; /* Light hover color for light mode */
+}
+
+@tailwind components;
+@tailwind utilities;

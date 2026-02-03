@@ -1,0 +1,273 @@
+-- Table: public.profiles
+
+-- DROP TABLE IF EXISTS public.profiles;
+
+CREATE TABLE IF NOT EXISTS public.profiles
+(
+    id uuid NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+    updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+    CONSTRAINT profiles_pkey PRIMARY KEY (id),
+    CONSTRAINT profiles_id_fkey FOREIGN KEY (id)
+        REFERENCES auth.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.profiles
+    OWNER to postgres;
+
+ALTER TABLE IF EXISTS public.profiles
+    ENABLE ROW LEVEL SECURITY;
+
+GRANT ALL ON TABLE public.profiles TO anon;
+
+GRANT ALL ON TABLE public.profiles TO authenticated;
+
+GRANT ALL ON TABLE public.profiles TO postgres;
+
+GRANT ALL ON TABLE public.profiles TO service_role;
+-- POLICY: Public profiles are viewable by everyone
+
+-- DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
+
+CREATE POLICY "Public profiles are viewable by everyone"
+    ON public.profiles
+    AS PERMISSIVE
+    FOR SELECT
+    TO public
+    USING (true);
+-- POLICY: Users can insert their own profile
+
+-- DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
+
+CREATE POLICY "Users can insert their own profile"
+    ON public.profiles
+    AS PERMISSIVE
+    FOR INSERT
+    TO public
+    WITH CHECK ((auth.uid() = id));
+-- POLICY: Users can update own profile
+
+-- DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+
+CREATE POLICY "Users can update own profile"
+    ON public.profiles
+    AS PERMISSIVE
+    FOR UPDATE
+    TO public
+    USING ((auth.uid() = id));
+
+
+-- Table: public.quotes
+
+-- DROP TABLE IF EXISTS public.quotes;
+
+CREATE TABLE IF NOT EXISTS public.quotes
+(
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    date timestamp without time zone NOT NULL DEFAULT now(),
+    due_date timestamp without time zone NOT NULL,
+    items jsonb NOT NULL,
+    subtotal double precision NOT NULL,
+    tax_rate text COLLATE pg_catalog."default" NOT NULL,
+    tax_amount double precision NOT NULL,
+    discount_type text COLLATE pg_catalog."default" NOT NULL,
+    discount_value double precision NOT NULL,
+    discount_amount double precision NOT NULL,
+    total double precision NOT NULL,
+    notes text COLLATE pg_catalog."default",
+    terms text COLLATE pg_catalog."default",
+    status text COLLATE pg_catalog."default" NOT NULL,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now(),
+    company_id bigint,
+    created_by uuid,
+    client_id bigint,
+    service_id bigint,
+    CONSTRAINT quotes_pkey PRIMARY KEY (id),
+    CONSTRAINT fk_quotes_company FOREIGN KEY (company_id)
+        REFERENCES public.companies (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE SET NULL,
+    CONSTRAINT fk_quotes_created_by FOREIGN KEY (created_by)
+        REFERENCES auth.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE SET NULL,
+    CONSTRAINT quotes_discount_amount_check CHECK (discount_amount >= 0::double precision),
+    CONSTRAINT quotes_discount_type_check CHECK (discount_type = ANY (ARRAY['percentage'::text, 'fixed'::text])),
+    CONSTRAINT quotes_discount_value_check CHECK (discount_value >= 0::double precision),
+    CONSTRAINT quotes_status_check CHECK (status = ANY (ARRAY['Draft'::text, 'Pending'::text, 'Accepted'::text, 'Rejected'::text])),
+    CONSTRAINT quotes_subtotal_check CHECK (subtotal >= 0::double precision),
+    CONSTRAINT quotes_tax_amount_check CHECK (tax_amount >= 0::double precision),
+    CONSTRAINT quotes_total_check CHECK (total >= 0::double precision)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.quotes
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.quotes TO anon;
+
+GRANT ALL ON TABLE public.quotes TO authenticated;
+
+GRANT ALL ON TABLE public.quotes TO postgres;
+
+GRANT ALL ON TABLE public.quotes TO service_role;
+-- Index: idx_quotes_company_id
+
+-- DROP INDEX IF EXISTS public.idx_quotes_company_id;
+
+CREATE INDEX IF NOT EXISTS idx_quotes_company_id
+    ON public.quotes USING btree
+    (company_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: idx_quotes_created_by
+
+-- DROP INDEX IF EXISTS public.idx_quotes_created_by;
+
+CREATE INDEX IF NOT EXISTS idx_quotes_created_by
+    ON public.quotes USING btree
+    (created_by ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: idx_quotes_date
+
+-- DROP INDEX IF EXISTS public.idx_quotes_date;
+
+CREATE INDEX IF NOT EXISTS idx_quotes_date
+    ON public.quotes USING btree
+    (date ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: idx_quotes_status
+
+-- DROP INDEX IF EXISTS public.idx_quotes_status;
+
+CREATE INDEX IF NOT EXISTS idx_quotes_status
+    ON public.quotes USING btree
+    (status COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+-- Trigger: set_updated_at
+
+-- DROP TRIGGER IF EXISTS set_updated_at ON public.quotes;
+
+CREATE OR REPLACE TRIGGER set_updated_at
+    BEFORE UPDATE 
+    ON public.quotes
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_updated_at_column();
+
+
+
+-- Table: public.service_categories
+
+-- DROP TABLE IF EXISTS public.service_categories;
+
+CREATE TABLE IF NOT EXISTS public.service_categories
+(
+    id bigint NOT NULL GENERATED BY DEFAULT AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    title text COLLATE pg_catalog."default",
+    description text COLLATE pg_catalog."default",
+    CONSTRAINT service_categories_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.service_categories
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.service_categories TO anon;
+
+GRANT ALL ON TABLE public.service_categories TO authenticated;
+
+GRANT ALL ON TABLE public.service_categories TO postgres;
+
+GRANT ALL ON TABLE public.service_categories TO service_role;
+
+
+-- Table: public.services
+
+-- DROP TABLE IF EXISTS public.services;
+
+CREATE TABLE IF NOT EXISTS public.services
+(
+    id bigint NOT NULL GENERATED BY DEFAULT AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone,
+    type text COLLATE pg_catalog."default",
+    category text COLLATE pg_catalog."default",
+    name text COLLATE pg_catalog."default",
+    sku text COLLATE pg_catalog."default",
+    price double precision,
+    unit text COLLATE pg_catalog."default",
+    short_desc text COLLATE pg_catalog."default",
+    detailed_desc text COLLATE pg_catalog."default",
+    image_path text COLLATE pg_catalog."default",
+    created_by uuid DEFAULT auth.uid(),
+    company_id bigint,
+    sub_frequency text COLLATE pg_catalog."default",
+    sub_details text COLLATE pg_catalog."default",
+    tags jsonb,
+    CONSTRAINT services_pkey PRIMARY KEY (id),
+    CONSTRAINT services_company_id_fkey FOREIGN KEY (company_id)
+        REFERENCES public.companies (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.services
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.services TO anon;
+
+GRANT ALL ON TABLE public.services TO authenticated;
+
+GRANT ALL ON TABLE public.services TO postgres;
+
+GRANT ALL ON TABLE public.services TO service_role;
+
+
+-- Table: public.statuses
+
+-- DROP TABLE IF EXISTS public.statuses;
+
+CREATE TABLE IF NOT EXISTS public.statuses
+(
+    id bigint NOT NULL GENERATED BY DEFAULT AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    module text COLLATE pg_catalog."default",
+    title text COLLATE pg_catalog."default",
+    description text COLLATE pg_catalog."default",
+    CONSTRAINT statuses_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.statuses
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.statuses TO anon;
+
+GRANT ALL ON TABLE public.statuses TO authenticated;
+
+GRANT ALL ON TABLE public.statuses TO postgres;
+
+GRANT ALL ON TABLE public.statuses TO service_role;
+
+
+
+////////////////
+
+CREATE TABLE CompanyChangeLog (
+  id SERIAL PRIMARY KEY,
+  companyId UUID NOT NULL,
+  changedBy UUID NOT NULL,
+  changeType VARCHAR(255) NOT NULL,
+  oldValue TEXT,
+  newValue TEXT,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

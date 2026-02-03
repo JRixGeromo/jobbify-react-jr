@@ -1,0 +1,351 @@
+import React, { useState } from 'react';
+import { Invoice, InvoiceItem } from '@/types/invoices';
+import { taxRates } from '@/data/tax-rates';
+import { paymentTerms } from '@/data/payment-terms';
+import { clients } from '@/data/clients';
+import { services } from '@/data/services';
+import { Plus, Trash2, Eye } from 'lucide-react';
+import { addDays, format } from 'date-fns';
+import { TipTapEditor } from '../editor/TipTapEditor';
+import { FileUpload } from '../ui/file-upload';
+import { v4 as uuidv4 } from 'uuid';
+import { PDFPreview } from '../pdf/PDFPreview';
+
+interface InvoiceFormProps {
+  invoice?: Invoice | null;
+  onSubmit: (invoice: Partial<Invoice>) => void;
+  onCancel: () => void;
+}
+
+export function InvoiceForm({ invoice, onSubmit, onCancel }: InvoiceFormProps) {
+  const [formData, setFormData] = useState<Partial<Invoice>>(
+    invoice || {
+      client: '',
+      service: '',
+      date: format(new Date(), 'yyyy-MM-dd'),
+      dueDate: format(addDays(new Date(), 30), 'yyyy-MM-dd'),
+      items: [],
+      subtotal: 0,
+      taxRate: 'us-tx',
+      taxAmount: 0,
+      discountType: 'percentage',
+      discountValue: 0,
+      discountAmount: 0,
+      total: 0,
+      notes: '',
+      terms: 'Please make payment by the due date.',
+      paymentTerm: 'net-30',
+      status: 'Draft',
+    }
+  );
+  const [showPreview, setShowPreview] = useState(false);
+
+  const calculateTotals = (
+    items: InvoiceItem[],
+    taxRate: string,
+    discountType: 'percentage' | 'fixed',
+    discountValue: number
+  ) => {
+    const subtotal = items.reduce(
+      (sum, item) => sum + item.quantity * item.unitPrice,
+      0
+    );
+    const discountAmount =
+      discountType === 'percentage'
+        ? (subtotal * discountValue) / 100
+        : discountValue;
+    const taxableAmount = items
+      .filter((item) => item.taxable)
+      .reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+    const selectedTaxRate =
+      taxRates.find((rate) => rate.id === taxRate)?.rate || 0;
+    const taxAmount =
+      ((taxableAmount - discountAmount) * selectedTaxRate) / 100;
+    const total = subtotal - discountAmount + taxAmount;
+
+    return { subtotal, discountAmount, taxAmount, total };
+  };
+
+  const handleAddItem = () => {
+    const newItem: InvoiceItem = {
+      id: uuidv4(),
+      description: '',
+      quantity: 1,
+      unitPrice: 0,
+      taxable: true,
+      media: null,
+    };
+    const newItems = [...(formData.items || []), newItem];
+    const totals = calculateTotals(
+      newItems,
+      formData.taxRate || 'us-tx',
+      formData.discountType || 'percentage',
+      formData.discountValue || 0
+    );
+    setFormData({ ...formData, items: newItems, ...totals });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => setShowPreview(true)}
+          className="inline-flex items-center px-4 py-2 text-purple-600 hover:text-purple-700"
+        >
+          <Eye className="h-4 w-4 mr-2" />
+          Preview Invoice
+        </button>
+      </div>
+
+      {/* Client and Service Selection */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Client
+          </label>
+          <select
+            value={formData.client}
+            onChange={(e) =>
+              setFormData({ ...formData, client: e.target.value })
+            }
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+            required
+          >
+            <option value="">Select a client</option>
+            {clients.map((client) => (
+              <option key={client.id} value={client.name}>
+                {client.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Service
+          </label>
+          <select
+            value={formData.service}
+            onChange={(e) =>
+              setFormData({ ...formData, service: e.target.value })
+            }
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+            required
+          >
+            <option value="">Select a service</option>
+            {services.map((service) => (
+              <option key={service.id} value={service.name}>
+                {service.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Items */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium text-slate-900">Items</h3>
+          <button
+            type="button"
+            onClick={handleAddItem}
+            className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Item
+          </button>
+        </div>
+
+        {formData.items?.map((item, index) => (
+          <div key={item.id} className="border rounded-lg p-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Description
+              </label>
+              <TipTapEditor
+                content={item.description}
+                onChange={(content) => {
+                  const newItems = [...(formData.items || [])];
+                  newItems[index] = { ...item, description: content };
+                  setFormData({ ...formData, items: newItems });
+                }}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Quantity
+                </label>
+                <input
+                  type="number"
+                  value={item.quantity}
+                  onChange={(e) => {
+                    const newItems = [...(formData.items || [])];
+                    newItems[index] = {
+                      ...item,
+                      quantity: parseFloat(e.target.value),
+                    };
+                    const totals = calculateTotals(
+                      newItems,
+                      formData.taxRate || 'us-tx',
+                      formData.discountType || 'percentage',
+                      formData.discountValue || 0
+                    );
+                    setFormData({ ...formData, items: newItems, ...totals });
+                  }}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                  min="1"
+                  step="1"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Unit Price
+                </label>
+                <input
+                  type="number"
+                  value={item.unitPrice}
+                  onChange={(e) => {
+                    const newItems = [...(formData.items || [])];
+                    newItems[index] = {
+                      ...item,
+                      unitPrice: parseFloat(e.target.value),
+                    };
+                    const totals = calculateTotals(
+                      newItems,
+                      formData.taxRate || 'us-tx',
+                      formData.discountType || 'percentage',
+                      formData.discountValue || 0
+                    );
+                    setFormData({ ...formData, items: newItems, ...totals });
+                  }}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Media
+                </label>
+                <FileUpload
+                  onFileSelect={(imageURL) => {
+                    const newItems = [...(formData.items || [])];
+                    newItems[index] = {
+                      ...item,
+                      media: imageURL,
+                    };
+                    setFormData({ ...formData, items: newItems });
+                  }}
+                  onRemove={() => {
+                    const newItems = [...(formData.items || [])];
+                    newItems[index] = { ...item, media: null };
+                    setFormData({ ...formData, items: newItems });
+                  }}
+                  accept="image/*,application/pdf"
+                  maxSize={5}
+                  currentFile={item.media}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={item.taxable}
+                  onChange={(e) => {
+                    const newItems = [...(formData.items || [])];
+                    newItems[index] = { ...item, taxable: e.target.checked };
+                    const totals = calculateTotals(
+                      newItems,
+                      formData.taxRate || 'us-tx',
+                      formData.discountType || 'percentage',
+                      formData.discountValue || 0
+                    );
+                    setFormData({ ...formData, items: newItems, ...totals });
+                  }}
+                  className="rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                />
+                <span className="ml-2 text-sm text-slate-600">Taxable</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  const newItems = (formData.items || []).filter(
+                    (_, i) => i !== index
+                  );
+                  const totals = calculateTotals(
+                    newItems,
+                    formData.taxRate || 'us-tx',
+                    formData.discountType || 'percentage',
+                    formData.discountValue || 0
+                  );
+                  setFormData({ ...formData, items: newItems, ...totals });
+                }}
+                className="text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Notes and Terms */}
+      <div className="grid grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Notes
+          </label>
+          <TipTapEditor
+            content={formData.notes || ''}
+            onChange={(content) => setFormData({ ...formData, notes: content })}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Terms
+          </label>
+          <TipTapEditor
+            content={formData.terms || ''}
+            onChange={(content) => setFormData({ ...formData, terms: content })}
+          />
+        </div>
+      </div>
+
+      {/* Submit Buttons */}
+      <div className="flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 text-slate-600 hover:text-slate-800"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+        >
+          {invoice ? 'Update' : 'Create'} Invoice
+        </button>
+      </div>
+
+      {/* PDF Preview Modal */}
+      <PDFPreview
+        type="invoice"
+        data={formData}
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+      />
+    </form>
+  );
+}
