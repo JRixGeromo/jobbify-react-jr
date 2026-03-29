@@ -11,6 +11,7 @@ import PricingPage from '@/pages/PricingPage';
 
 import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage';
+import MigrationTest from '@/pages/MigrationTest';
 
 
 // Dashboard Pages
@@ -72,6 +73,7 @@ export function Routes() {
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/auth/callback" element={<CallbackPage />} />
       <Route path="/success" element={<SuccessPage />} /> {/* Add SuccessPage route */}
+      <Route path="/migration-test" element={<MigrationTest />} />
 
       {/* Protected Routes */}
       <Route

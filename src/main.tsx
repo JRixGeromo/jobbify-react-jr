@@ -20,7 +20,7 @@ if (typeof window !== 'undefined') {
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' https: data: blob:;
     font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' https://api.servicepro.com  ${import.meta.env.VITE_SUPABASE_URL};
+    connect-src 'self' https://api.servicepro.com  ${import.meta.env.VITE_API_URL};
     frame-ancestors 'none';
     form-action 'self';
     base-uri 'self';
