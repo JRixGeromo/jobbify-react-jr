@@ -5,14 +5,8 @@
  * Tests core functionality without browser
  */
 
-import http from 'http';
-import https from 'https';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const http = require('http');
+const https = require('https');
 
 // Configuration
 const APP_URL = 'http://localhost:5173';
@@ -75,6 +69,9 @@ async function testApplicationStartup() {
 
 // Test 2: Environment variables
 async function testEnvironmentVariables() {
+  const fs = require('fs');
+  const path = require('path');
+  
   // Check if .env file exists
   const envPath = path.join(process.cwd(), '.env');
   if (!fs.existsSync(envPath)) {
@@ -111,6 +108,8 @@ async function testStaticAssets() {
   
   for (const asset of assets) {
     // Check if files exist
+    const fs = require('fs');
+    const path = require('path');
     const fullPath = path.join(process.cwd(), asset);
     if (!fs.existsSync(fullPath)) {
       throw new Error(`Required file ${asset} not found`);
@@ -120,6 +119,7 @@ async function testStaticAssets() {
 
 // Test 4: Package.json dependencies
 async function testDependencies() {
+  const fs = require('fs');
   const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   
   const requiredDeps = [
@@ -140,6 +140,7 @@ async function testDependencies() {
 
 // Test 5: TypeScript configuration
 async function testTypeScriptConfig() {
+  const fs = require('fs');
   const tsConfig = JSON.parse(fs.readFileSync('tsconfig.json', 'utf8'));
   
   if (tsConfig.compilerOptions.strict !== true) {
@@ -153,6 +154,9 @@ async function testTypeScriptConfig() {
 
 // Test 6: API endpoints structure
 async function testAPIStructure() {
+  const fs = require('fs');
+  const path = require('path');
+  
   // Check if API directory exists
   const apiDir = path.join(process.cwd(), 'api');
   if (!fs.existsSync(apiDir)) {
@@ -175,6 +179,9 @@ async function testAPIStructure() {
 
 // Test 7: GraphQL schema and queries
 async function testGraphQLStructure() {
+  const fs = require('fs');
+  const path = require('path');
+  
   // Check GraphQL directory
   const graphqlDir = path.join(process.cwd(), 'src', 'graphql');
   if (!fs.existsSync(graphqlDir)) {
@@ -190,6 +197,9 @@ async function testGraphQLStructure() {
 
 // Test 8: Component structure
 async function testComponentStructure() {
+  const fs = require('fs');
+  const path = require('path');
+  
   const componentsDir = path.join(process.cwd(), 'src', 'components');
   if (!fs.existsSync(componentsDir)) {
     throw new Error('Components directory not found');
@@ -212,6 +222,9 @@ async function testComponentStructure() {
 
 // Test 9: Route configuration
 async function testRouteConfiguration() {
+  const fs = require('fs');
+  const path = require('path');
+  
   const routesPath = path.join(process.cwd(), 'src', 'routes', 'index.tsx');
   if (!fs.existsSync(routesPath)) {
     throw new Error('Routes configuration file not found');
@@ -236,6 +249,8 @@ async function testRouteConfiguration() {
 
 // Test 10: Build configuration
 async function testBuildConfiguration() {
+  const fs = require('fs');
+  
   // Check vite.config.ts
   if (!fs.existsSync('vite.config.ts')) {
     throw new Error('Vite configuration file not found');

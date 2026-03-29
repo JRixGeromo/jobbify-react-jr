@@ -417,7 +417,7 @@ export default function QuoteDetails() {
                             onClick={async () => {
                               try {
                                 const publicUrl = constructPublicUrl(
-                                  'jobbify',
+                                  'labor-grid',
                                   fileUrl
                                 );
                                 console.log('Attempting to fetch:', publicUrl);

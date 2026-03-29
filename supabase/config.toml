@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "jobbify-react"
+project_id = "labor-grid-fe"
 
 [api]
 enabled = true
@@ -99,15 +99,15 @@ enabled = true
 # in emails.
 site_url = "http://localhost:5173"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-# additional_redirect_urls = ["https://app.jobbify.com.au/new-password"]
+# additional_redirect_urls = ["https://app.labor-grid.com/new-password"]
 additional_redirect_urls = [
   # Production
-  "https://app.jobbify.com.au/auth/callback",
-  "https://app.jobbify.com.au/reset-password",
+  "https://app.labor-grid.com/auth/callback",
+  "https://app.labor-grid.com/reset-password",
   
   # Staging
-  "https://staging.jobbify.com.au/auth/callback",
-  "https://staging.jobbify.com.au/reset-password",
+  "https://staging.labor-grid.com/auth/callback",
+  "https://staging.labor-grid.com/reset-password",
   
   # Development
   "http://localhost:5173/auth/callback",

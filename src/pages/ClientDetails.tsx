@@ -215,7 +215,7 @@ export default function ClientDetails() {
     const uuid = uuidv4();
     const imagePath = `/uploads/clients/${uuid}/${file.name}`;
     const { data, error } = await supabase.storage
-      .from('jobbify')
+      .from('labor-grid')
       .upload(imagePath, file);
 
     if (error) {
@@ -224,7 +224,7 @@ export default function ClientDetails() {
     }
 
     const { data: imageUrlData } = supabase.storage
-      .from('jobbify')
+      .from('labor-grid')
       .getPublicUrl(imagePath);
 
     if (!imageUrlData || !imageUrlData.publicUrl) {

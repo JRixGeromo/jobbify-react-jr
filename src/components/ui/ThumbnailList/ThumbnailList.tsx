@@ -29,7 +29,7 @@ export function ThumbnailList({
   const deleteFile = async (filePath: string) => {
     console.log(filePath);
     const { data, error } = await supabase.storage
-      .from('jobbify') // Replace with your bucket name
+      .from('labor-grid') // Replace with your bucket name
       .remove([filePath]); // Pass the file path as an array
     if (error) {
       console.error('Error deleting file:', error);

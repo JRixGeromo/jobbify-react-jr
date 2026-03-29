@@ -73,7 +73,7 @@ export default function CreateClientPage() {
   const uploadFile = async (file: any) => {
     const imagePath = `/uploads/clients/${uuid}/${file.name}`;
     const { data, error } = await supabase.storage
-      .from('jobbify')
+      .from('labor-grid')
       .upload(imagePath, file);
 
     if (error) {
@@ -83,7 +83,7 @@ export default function CreateClientPage() {
 
     // Generate public URL for the image
     const { data: imageUrlData } = supabase.storage
-      .from('jobbify') // Replace with your actual bucket name
+      .from('labor-grid') // Replace with your actual bucket name
       .getPublicUrl(imagePath);
     // Check if the public URL exists before proceeding
     if (!imageUrlData || !imageUrlData.publicUrl) {

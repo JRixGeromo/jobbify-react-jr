@@ -35,7 +35,7 @@ export const WithSkipModal: React.FC<WithSkipModalProps> = ({
         <p className="absolute top-10 right-4 text-gray-500 text-xs mb-4">Can be done later</p>
         <br className="mb-11" />
         <div className="mb-4 text-center">
-          <h1 className="text-xl font-bold">Welcome To Jobbify!</h1>
+          <h1 className="text-xl font-bold">Welcome To Labor Grid!</h1>
           <p>Add your company name and logo to start sending professional quotes and invoices.</p>
         </div>
         <h2 className="text-lg font-semibold text-slate-800">{title}</h2>

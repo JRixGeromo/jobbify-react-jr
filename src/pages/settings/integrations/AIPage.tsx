@@ -32,7 +32,7 @@ export default function AIPage() {
       id: '1',
       role: 'assistant',
       content:
-        "Hi! I'm Foreman, your AI assistant. I can help you analyze your Jobbify data and answer questions about your business. What would you like to know?",
+        "Hi! I'm Foreman, your AI assistant. I can help you analyze your Labor Grid data and answer questions about your business. What would you like to know?",
       timestamp: new Date(),
     },
   ]);
@@ -86,7 +86,7 @@ export default function AIPage() {
     setTimeout(() => {
       setMessages((prev) => {
         const response =
-          'Based on your Jobbify data, I can provide the following analysis... [AI response would be generated here based on actual data integration]';
+          'Based on your Labor Grid data, I can provide the following analysis... [AI response would be generated here based on actual data integration]';
         return prev.map((msg) =>
           msg.id === loadingMessage.id
             ? { ...msg, content: response, loading: false }

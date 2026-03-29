@@ -130,7 +130,7 @@ export function Sidebar({ hasActiveSubscription, isLoading }: SidebarProps) {
         <span
           className={`text-lg font-bold ${isCollapsed ? 'hidden' : 'block'}`}
         >
-          Jobbify
+          Labor Grid
         </span>
         <Sparkles
           className={`${

@@ -67,7 +67,7 @@ export function FileUpload({
       const uuid = v4();
       const imagePath = `uploads/${folder}/${uuid}/${file.name}`;
       const { data, error } = await supabase.storage
-        .from('jobbify')
+        .from('labor-grid')
         .upload(imagePath, file);
 
       if (error) {
@@ -78,7 +78,7 @@ export function FileUpload({
 
       // Get public URL
       const { data: imageUrlData } = supabase.storage
-        .from('jobbify') // Replace with your actual bucket name
+        .from('labor-grid') // Replace with your actual bucket name
         .getPublicUrl(imagePath);
 
       // Check if the public URL exists before proceeding

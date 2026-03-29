@@ -46,7 +46,7 @@ export function SignupPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="h-8 w-8 text-purple-600" />
-            <span className="text-2xl font-bold text-slate-800">Jobbify</span>
+            <span className="text-2xl font-bold text-slate-800">Labor Grid</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-800">Create Account</h1>
           <p className="text-slate-600">Join us today</p>

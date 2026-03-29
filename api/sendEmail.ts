@@ -132,7 +132,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Send the email using Resend
     const result = await resend.emails.send({
-      from: 'no-reply@jobbify.com.au', // onboarding@resend.dev
+      from: 'no-reply@labor-grid.com', // onboarding@resend.dev
       to: clientEmail,
       subject,
       html,

@@ -19,7 +19,7 @@ export function AppHeader() {
           <div>
             <h1 className="text-2xl font-bold text-slate-800">App Store</h1>
             <p className="text-slate-600">
-              Extend your Jobbify with powerful integrations
+              Extend your Labor Grid with powerful integrations
             </p>
           </div>
         </div>

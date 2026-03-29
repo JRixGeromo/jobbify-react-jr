@@ -215,7 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('pkce_code_verifier', codeVerifier);
   
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://app.jobbify.com.au/reset-password', // ✅ Ensure correct redirect URL 
+      redirectTo: 'https://app.labor-grid.com/reset-password', // ✅ Ensure correct redirect URL 
       //redirectTo: 'http://localhost:5173/reset-password', // ✅ Ensure correct redirect URL 
     });
   
